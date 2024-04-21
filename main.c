@@ -20,5 +20,8 @@ int main(){
 		return 0;
 	}
 	get_val = lis3mdltr_GetFullScaleConfig();
+	lis3mdltr_GetDataRate();
+	lis3mdltr_SetDataRate(2);
+
 	return 0;
 }

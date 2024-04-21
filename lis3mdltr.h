@@ -20,6 +20,7 @@
  * Registers
  */
 #define LIS3MDLTR_WHOAMI_REG_ADDR		0x0F		// device id register
+#define LIS3MDLTR_CTRL_REG1_ADDR		0x20		// get/set data rate
 #define LIS3MDLTR_CTRL_REG2_ADDR		0x21		// full scale config register
 
 /*
@@ -27,6 +28,8 @@
  */
 status_t lis3mdltr_init(void);
 uint8_t lis3mdltr_GetFullScaleConfig(void);
+uint8_t lis3mdltr_GetDataRate(void);
+status_t lis3mdltr_SetDataRate(uint8_t data_rate);
 
 
 #endif /* LIS3MDLTR_H_ */
