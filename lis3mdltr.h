@@ -22,6 +22,16 @@
 #define LIS3MDLTR_WHOAMI_REG_ADDR		0x0F		// device id register
 #define LIS3MDLTR_CTRL_REG1_ADDR		0x20		// get/set data rate
 #define LIS3MDLTR_CTRL_REG2_ADDR		0x21		// full scale config register
+#define LIS3MDLTR_CTRL_REG3_ADDR		0x22
+
+/*
+ * Enums
+ */
+typedef enum{
+	AXIS_X,
+	AXIS_Y,
+	AXIS_Z
+}axis;
 
 /*
  * functions
@@ -30,6 +40,10 @@ status_t lis3mdltr_init(void);
 uint8_t lis3mdltr_GetFullScaleConfig(void);
 uint8_t lis3mdltr_GetDataRate(void);
 status_t lis3mdltr_SetDataRate(uint8_t data_rate);
+uint8_t lis3mdltr_ReadInterruptConfig(void);
+status_t lis3mdltr_EnableInterrupt(void);
+status_t lis3mdltr_DisableInterrupt(void);
+uint16_t lis3mdltr_read_axis_data(axis ax);
 
 
 #endif /* LIS3MDLTR_H_ */

@@ -39,11 +39,11 @@ status_t lis3mdltr_init(){
  */
 uint8_t lis3mdltr_GetFullScaleConfig(){
 	status_t status = STATUS_ERROR;
-	uint8_t reg_value;
+	uint8_t rxBuff;
 
-	status = i2c_read( LIS3MDLTR_I2C_ADDR, LIS3MDLTR_CTRL_REG2_ADDR, 1u, &reg_value );
+	status = i2c_read( LIS3MDLTR_I2C_ADDR, LIS3MDLTR_CTRL_REG2_ADDR, 1u, &rxBuff );
 	if (status == STATUS_OK)
-		return reg_value;
+		return rxBuff;
 
 	return -1;
 }
@@ -58,11 +58,11 @@ uint8_t lis3mdltr_GetFullScaleConfig(){
  */
 uint8_t lis3mdltr_GetDataRate(){
 	status_t status = STATUS_ERROR;
-	uint8_t reg_value;
+	uint8_t rxBuff;
 
-	status = i2c_read( LIS3MDLTR_I2C_ADDR, LIS3MDLTR_CTRL_REG1_ADDR, 1u, &reg_value );
+	status = i2c_read( LIS3MDLTR_I2C_ADDR, LIS3MDLTR_CTRL_REG1_ADDR, 1u, &rxBuff);
 	if (status == STATUS_OK)
-		return reg_value;
+		return rxBuff;
 
 	return -1;
 }
@@ -100,6 +100,92 @@ status_t lis3mdltr_SetDataRate(uint8_t data_rate){
 	return status;
 }
 
+/*
+ * function: lis3mdltr_ReadInterruptConfig
+ *
+ * description: read interrupt config
+ *
+ * return: current settings on success or -1 on failure.
+ */
+uint8_t lis3mdltr_ReadInterruptConfig(){
+	status_t status;
+	uint8_t rxBuff;
 
+	status = i2c_read( LIS3MDLTR_I2C_ADDR, LIS3MDLTR_CTRL_REG3_ADDR, 1u, &rxBuff );
+	if (STATUS_OK == status)
+	{
+		return rxBuff;
+	}
+	return -1;
+}
+
+/*
+ * function: lis3mdltr_EnableInterrupt
+ *
+ * description: set IE bit
+ *
+ * return: status success or failure.
+ */
+status_t lis3mdltr_EnableInterrupt(){
+	status_t status = STATUS_ERROR;
+	uint8_t rxBuff = lis3mdltr_ReadInterruptConfig();
+	uint8_t enable_intr = rxBuff | 0x80; 	// set IE bit
+	status = i2c_write(LIS3MDLTR_I2C_ADDR, LIS3MDLTR_CTRL_REG3_ADDR, 1u, &enable_intr);
+	return status;
+}
+
+/*
+ * function: lis3mdltr_DisableInterrupt
+ *
+ * description: clear IE bit
+ *
+ * return: status success or failure.
+ */
+status_t lis3mdltr_DisableInterrupt(){
+	status_t status = STATUS_ERROR;
+	uint8_t rxBuff = lis3mdltr_ReadInterruptConfig();
+	uint8_t enable_intr = rxBuff & ~0x80; 	// clear IE bit
+	i2c_write(LIS3MDLTR_I2C_ADDR, LIS3MDLTR_CTRL_REG3_ADDR, 1u, &enable_intr);
+	return status;
+}
+
+/*
+ * function: lis3mdltr_read_axis_data
+ *
+ * description: read axis data.
+ *
+ * return: requested axis data.
+ */
+uint16_t lis3mdltr_read_axis_data(axis ax){
+	uint8_t l_reg, h_reg;
+	switch(ax){
+		case AXIS_X:
+			l_reg = 0x28; // OUT_X_L
+			h_reg = 0x29; // OUT_X_H
+			break;
+
+		case AXIS_Y:
+			l_reg = 0x2A; // OUT_Y_L
+			h_reg = 0x2B; // OUT_Y_H
+			break;
+
+		case AXIS_Z:
+			l_reg = 0x2C; // OUT_Z_L
+			h_reg = 0x2D; // OUT_Z_H
+			break;
+
+		default:
+			return 0; // return for undefined axis
+
+	}
+
+	uint8_t low_data_byte, high_data_byte;
+	i2c_read( LIS3MDLTR_I2C_ADDR, l_reg, 1u, &low_data_byte );
+	i2c_read( LIS3MDLTR_I2C_ADDR, h_reg, 1u, &high_data_byte );
+
+	//combine data
+	uint16_t axis_data = (high_data_byte << 8) | low_data_byte;
+	return axis_data;
+}
 
 
